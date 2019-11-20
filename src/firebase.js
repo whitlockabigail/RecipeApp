@@ -3,14 +3,13 @@ import "firebase/auth";
 import "firebase/firestore";
 
 const config = {
-  apiKey: "AIzaSyDjwtvMALocxZHm2xFUTqHKl1Kiz52griQ",
-  authDomain: "todo-b5b95.firebaseapp.com",
-  databaseURL: "https://todo-b5b95.firebaseio.com",
-  projectId: "todo-b5b95",
-  storageBucket: "todo-b5b95.appspot.com",
-  messagingSenderId: "136916565712",
-  appId: "1:136916565712:web:abae842a8d7223766be8d5",
-  measurementId: "G-ERQJT47T9G"
+  apiKey: "AIzaSyDccDOxVKuHBCWOVqJL6HQV1OoupQzgM1M",
+  authDomain: "recipeapp-e6533.firebaseapp.com",
+  databaseURL: "https://recipeapp-e6533.firebaseio.com",
+  projectId: "recipeapp-e6533",
+  storageBucket: "recipeapp-e6533.appspot.com",
+  messagingSenderId: "629117801354",
+  appId: "1:629117801354:web:8aa9f8384b459d217dae73"
 };
 
 firebase.initializeApp(config);
