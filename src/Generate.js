@@ -22,6 +22,7 @@ export function Generate(props) {
         db.collection("recipes")
           .doc(recipe.id)
           .collection("ingredients")
+          .orderBy("order")
           .get()
           .then(snapshot => {
             const ingredients = snapshot.docs;
@@ -30,6 +31,7 @@ export function Generate(props) {
         db.collection("recipes")
           .doc(recipe.id)
           .collection("instructions")
+          .orderBy("order")
           .get()
           .then(snapshot => {
             const instructions = snapshot.docs;
