@@ -110,6 +110,15 @@ export function App(props) {
           </ListItem>
           <ListItem
             button
+            onClick={() => {
+              setOpen(true);
+              setDrawerOpen(false);
+            }}
+          >
+            <ListItemText primary="Input Recipe" />
+          </ListItem>
+          <ListItem
+            button
             to="/app/myrecipes"
             component={Link}
             onClick={() => {
@@ -117,15 +126,6 @@ export function App(props) {
             }}
           >
             <ListItemText primary="My Recipes" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              setOpen(true);
-              setDrawerOpen(false);
-            }}
-          >
-            <ListItemText primary="Input Recipe" />
           </ListItem>
           <ListItem
             button

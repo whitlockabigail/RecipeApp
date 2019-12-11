@@ -26,6 +26,7 @@ export function Input(props) {
       .collection("recipes")
       .doc(props.match.params.recipeId)
       .collection("ingredients")
+      .orderBy("order")
       .onSnapshot(snapshot => {
         const updated_ingredients = [];
         snapshot.forEach(doc => {
@@ -45,6 +46,7 @@ export function Input(props) {
       .collection("recipes")
       .doc(props.match.params.recipeId)
       .collection("instructions")
+      .orderBy("order")
       .onSnapshot(snapshot => {
         const updated_instructions = [];
         snapshot.forEach(doc => {
@@ -76,7 +78,7 @@ export function Input(props) {
     db.collection("recipes")
       .doc(props.match.params.recipeId)
       .collection("ingredients")
-      .add({ text: new_ingredient })
+      .add({ text: new_ingredient, order: ingredients.length + 1 })
       .then(() => {
         setNewIngredient("");
       });
@@ -94,7 +96,7 @@ export function Input(props) {
     db.collection("recipes")
       .doc(props.match.params.recipeId)
       .collection("instructions")
-      .add({ text: new_instruction })
+      .add({ text: new_instruction, order: instructions.length + 1 })
       .then(() => {
         setNewInstruction("");
       });
@@ -105,6 +107,12 @@ export function Input(props) {
       .doc(props.match.params.recipeId)
       .collection("instructions")
       .doc(instruction_id)
+      .delete();
+  };
+
+  const handleDeleteRecipe = recipe_id => {
+    db.collection("recipes")
+      .doc(props.match.params.recipeId)
       .delete();
   };
 
@@ -119,7 +127,7 @@ export function Input(props) {
       >
         <Paper
           style={{
-            maxWidth: "500px",
+            maxWidth: "700px",
             width: "100%",
             marginTop: 30,
             padding: "30px"
@@ -155,6 +163,11 @@ export function Input(props) {
               value={new_ingredient}
               onChange={e => {
                 setNewIngredient(e.target.value);
+              }}
+              onKeyPress={e => {
+                if (e.key === "Enter") {
+                  handleAddIngredient();
+                }
               }}
             />
             <Button variant="contained" onClick={handleAddIngredient}>
@@ -196,6 +209,11 @@ export function Input(props) {
               onChange={e => {
                 setNewInstruction(e.target.value);
               }}
+              onKeyPress={e => {
+                if (e.key === "Enter") {
+                  handleAddInstruction();
+                }
+              }}
             />
             <Button variant="contained" onClick={handleAddInstruction}>
               Save
@@ -220,7 +238,17 @@ export function Input(props) {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Button
               variant="contained"
-              style={{ width: 100, marginTop: "40px" }}
+              style={{ width: 100, marginTop: "40px", marginRight: 10 }}
+              onClick={() => {
+                props.setOpen(true);
+                handleDeleteRecipe();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              style={{ width: 100, marginTop: "40px", marginLeft: 10 }}
               onClick={() => {
                 props.setOpen(true);
               }}

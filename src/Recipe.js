@@ -17,11 +17,11 @@ export function Recipe(props) {
       .doc(props.match.params.recipeId)
       .get()
       .then(snapshot => {
-        console.log(snapshot.data());
         setTitle(snapshot.data().title);
         db.collection("recipes")
           .doc(props.match.params.recipeId)
           .collection("ingredients")
+          .orderBy("order")
           .get()
           .then(snapshot => {
             const ingredients = snapshot.docs;
@@ -30,6 +30,7 @@ export function Recipe(props) {
         db.collection("recipes")
           .doc(props.match.params.recipeId)
           .collection("instructions")
+          .orderBy("order")
           .get()
           .then(snapshot => {
             const instructions = snapshot.docs;
@@ -43,7 +44,7 @@ export function Recipe(props) {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Paper
           style={{
-            maxWidth: "500px",
+            maxWidth: "600px",
             width: "100%",
             padding: "30px",
             marginTop: 50
@@ -71,7 +72,7 @@ export function Recipe(props) {
             </Typography>
           )}
           {ingredients.map(value => (
-            <Typography style={{ fontSize: 20 }}>
+            <Typography style={{ fontSize: 20, marginTop: 15 }}>
               {value.data().text}
             </Typography>
           ))}
@@ -87,7 +88,7 @@ export function Recipe(props) {
             Instruction
           </Typography>
           {instructions.map(value => (
-            <Typography style={{ fontSize: 20 }}>
+            <Typography style={{ fontSize: 20, marginTop: 15 }}>
               {value.data().text}
             </Typography>
           ))}

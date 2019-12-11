@@ -61,7 +61,7 @@ export function Generate(props) {
         {ingredients.length > 0 && (
           <Paper
             style={{
-              maxWidth: "500px",
+              maxWidth: "600px",
               width: "100%",
               padding: "30px",
               marginTop: 50
@@ -90,7 +90,7 @@ export function Generate(props) {
               </Typography>
             )}
             {ingredients.map(value => (
-              <Typography style={{ fontSize: 20 }}>
+              <Typography style={{ fontSize: 20, marginTop: 15 }}>
                 {value.data().text}
               </Typography>
             ))}
@@ -108,7 +108,7 @@ export function Generate(props) {
               </Typography>
             )}
             {instructions.map(value => (
-              <Typography style={{ fontSize: 20 }}>
+              <Typography style={{ fontSize: 20, marginTop: 15 }}>
                 {value.data().text}
               </Typography>
             ))}
