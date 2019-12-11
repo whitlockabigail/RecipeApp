@@ -2,25 +2,34 @@ import React, { useState, useEffect } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import RestaurantIcon from "@material-ui/icons/Restaurant";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
-import Checkbox from "@material-ui/core/Checkbox";
-import DeleteIcon from "@material-ui/icons/Delete";
 import { auth, db } from "./firebase";
+import { Route, Link } from "react-router-dom";
+import { Input } from "./Input";
+import { Generate } from "./Generate";
+import { Home } from "./Home";
+import { MyRecipes } from "./MyRecipes";
+import { Recipe } from "./Recipe";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  TextField
+} from "@material-ui/core";
 
 export function App(props) {
   const [user, setUser] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [new_task, setNewTask] = useState("");
-
-  console.log(tasks);
+  const [drawer_open, setDrawerOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [recipeTitle, setRecipeTitle] = useState("");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(u => {
@@ -33,55 +42,6 @@ export function App(props) {
     return unsubscribe;
   }, [props.history]);
 
-  useEffect(() => {
-    let unsubscribe;
-    if (user) {
-      unsubscribe = db
-        .collection("users")
-        .doc(user.uid)
-        .collection("tasks")
-        .onSnapshot(snapshot => {
-          const user_tasks = snapshot.docs.map(qs => {
-            const task = {
-              id: qs.id,
-              text: qs.data().text,
-              checked: qs.data().checked
-            };
-            return task;
-          });
-          setTasks(user_tasks);
-        });
-    }
-    return unsubscribe;
-  }, [user]);
-
-  const handleAddTask = () => {
-    console.log("add task");
-    db.collection("users")
-      .doc(user.uid)
-      .collection("tasks")
-      .add({ text: new_task, checked: false })
-      .then(() => {});
-
-    setNewTask("");
-  };
-
-  const handleDeleteTask = task_id => {
-    db.collection("users")
-      .doc(user.uid)
-      .collection("tasks")
-      .doc(task_id)
-      .delete();
-  };
-
-  const handleCheckTask = (checked, task_id) => {
-    db.collection("users")
-      .doc(user.uid)
-      .collection("tasks")
-      .doc(task_id)
-      .update({ checked: checked });
-  };
-
   const handleSignOut = () => {
     auth
       .signOut()
@@ -91,96 +51,144 @@ export function App(props) {
       });
   };
 
+  const handleSaveRecipe = () => {
+    db.collection("recipes")
+      .add({ title: recipeTitle, uid: user.uid })
+      .then(snapshot => {
+        setRecipeTitle("");
+        setOpen(false);
+        props.history.push("/app/input/" + snapshot.id);
+      });
+  };
+
   if (!user) return <div />;
 
   return (
     <div>
-      <AppBar color="secondary" position="static" style={{ width: "100%" }}>
+      <AppBar position="static" color="primary">
         <Toolbar>
-          <Typography
+          <IconButton
             color="inherit"
-            variant="h6"
-            style={{ marginLeft: 15, flexGrow: 1 }}
+            onClick={() => {
+              setDrawerOpen(true);
+            }}
           >
-            To Do List
+            <MenuIcon />
+          </IconButton>
+          <RestaurantIcon style={{ marginLeft: 25, marginRight: 10 }} />
+          <Typography
+            variant="h6"
+            color="inherit"
+            style={{ flexGrow: 1, fontFamily: "Marcellus", fontSize: 25 }}
+          >
+            Recipe App
           </Typography>
-          <Typography color="inherit" style={{ marginRight: 30 }}>
-            Hi {user.email}
+          <Typography color="inherit" style={{ marginRight: "30px" }}>
+            Hi! {user.email}
           </Typography>
           <Button color="inherit" onClick={handleSignOut}>
             Sign Out
           </Button>
         </Toolbar>
       </AppBar>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "30"
+      <Drawer
+        open={drawer_open}
+        onClose={() => {
+          setDrawerOpen(false);
         }}
       >
-        <Paper
-          style={{
-            maxWidth: "500px",
-            width: "100%",
-            marginTop: 30,
-            padding: "30px"
-          }}
-        >
-          <Typography color="secondary" variant={"h6"}>
-            {" "}
-            To Do List{" "}
-          </Typography>
-          <div style={{ display: "flex", marginTop: "40px" }}>
-            <TextField
-              fullWidth
-              onKeyPress={e => {
-                if (e.key === "Enter") {
-                  handleAddTask();
-                }
-              }}
-              placeholder="Add a task here"
-              style={{ marginRight: "30px" }}
-              value={new_task}
-              onChange={e => {
-                setNewTask(e.target.value);
-              }}
-            />
-            <Button
-              color="secondary"
-              variant="contained"
-              onClick={handleAddTask}
-            >
-              Add
-            </Button>
-          </div>
-          <List>
-            {tasks.map(value => (
-              <ListItem key={value.id}>
-                <ListItemIcon>
-                  <Checkbox
-                    checked={value.checked}
-                    onChange={(e, checked) => {
-                      handleCheckTask(checked, value.id);
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText primary={value.text} />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    onClick={() => {
-                      handleDeleteTask(value.id);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-      </div>
+        <List>
+          <ListItem
+            button
+            to="/app"
+            component={Link}
+            onClick={() => {
+              setDrawerOpen(false);
+            }}
+          >
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem
+            button
+            to="/app/myrecipes"
+            component={Link}
+            onClick={() => {
+              setDrawerOpen(false);
+            }}
+          >
+            <ListItemText primary="My Recipes" />
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              setOpen(true);
+              setDrawerOpen(false);
+            }}
+          >
+            <ListItemText primary="Input Recipe" />
+          </ListItem>
+          <ListItem
+            button
+            to="/app/generate"
+            component={Link}
+            onClick={() => {
+              setDrawerOpen(false);
+            }}
+          >
+            <ListItemText primary="Generate Recipe" />
+          </ListItem>
+        </List>
+      </Drawer>
+      <Route exact path="/app" component={Home} />
+      <Route
+        path="/app/input/:recipeId"
+        render={routeProps => {
+          return <Input user={user} {...routeProps} setOpen={setOpen} />;
+        }}
+      />
+      <Route path="/app/generate" component={Generate} />
+      <Route
+        path="/app/myrecipes"
+        render={routeProps => {
+          return <MyRecipes uid={user.uid} {...routeProps} />;
+        }}
+      />
+      <Route
+        path="/app/recipe/:recipeId"
+        render={routeProps => {
+          return <Recipe uid={user.uid} {...routeProps} />;
+        }}
+      />
+      <Dialog
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Create New Recipe</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Title"
+            value={recipeTitle}
+            onChange={e => {
+              setRecipeTitle(e.target.value);
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleSaveRecipe}>Save</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
